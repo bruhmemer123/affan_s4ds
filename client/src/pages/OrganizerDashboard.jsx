@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getHackathons, updateHackathon, deleteHackathon } from "../services/api";
+import { getHackathons, updateHackathon, deleteHackathon, createHackathon } from "../services/api";
 
 const OrganizerDashboard = () => {
   const [hackathons, setHackathons] = useState([]);
@@ -35,6 +35,20 @@ const OrganizerDashboard = () => {
     }
   };
 
+  const handleOpenCreateModal = () => {
+    setEditingHackathon(null);
+    setFormData({
+      title: "",
+      description: "",
+      date: "",
+      rules: "",
+      timeline: "",
+      location: "",
+      prizePool: ""
+    });
+    setIsModalOpen(true);
+  };
+
   const handleOpenEditModal = (hackathon) => {
     setEditingHackathon(hackathon);
     setFormData({
@@ -61,14 +75,16 @@ const OrganizerDashboard = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!editingHackathon) return;
-
     try {
-      await updateHackathon(editingHackathon.id, formData);
+      if (editingHackathon){
+        await updateHackathon(editingHackathon.id, formData);
+      } else{
+        await createHackathon(formData);
+      }
       handleCloseModal();
       fetchData();
     } catch (err) {
-      alert("Error updating hackathon: " + (err.response?.data?.message || err.message));
+      alert(`Error ${editingHackathon ? "updating" : "creating"} hackathon: ` + (err.response?.data?.message || err.message));
     }
   };
 
@@ -87,9 +103,12 @@ const OrganizerDashboard = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: "20px" }}>
-        <h2>Organizer Dashboard</h2>
-        <p className="text-muted">Manage existing hackathons (Edit details or Delete).</p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <div>
+          <h2>Organizer Dashboard</h2>
+          <p className="text-muted">Manage existing hackathons (Edit details or Delete).</p>
+        </div>
+        <button onClick={handleOpenCreateModal} className="btn btn-primary">+ Create Hackathon</button>
       </div>
 
       {error && <div className="alert-error">{error}</div>}
@@ -139,10 +158,10 @@ const OrganizerDashboard = () => {
       </div>
 
       {/* Edit Modal */}
-      {isModalOpen && editingHackathon && (
+      {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h3>Edit Hackathon #{editingHackathon.id}</h3>
+            <h3>{editingHackathon ? `Edit Hackathon #${editingHackathon.id}` : "Create New Hackathon"}</h3>
             <form onSubmit={handleSubmit} style={{ marginTop: "15px" }}>
               <div className="form-group">
                 <label>Title *</label>
@@ -203,7 +222,7 @@ const OrganizerDashboard = () => {
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  Save Changes
+                  {editingHackathon ? "Save Changes" : "Create Hackathon"}
                 </button>
               </div>
             </form>

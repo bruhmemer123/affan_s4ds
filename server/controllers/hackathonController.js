@@ -106,9 +106,49 @@ const deleteHackathon = async (req, res) => {
   }
 };
 
+const createHackathon = async (req, res) => {
+  try {
+    const { title, description, rules, timeline, date, location, prizePool } = req.body;
+    if(!title || !description || !date) {
+      return res.status(400).json({ message: "Title, description, and date are required." });
+    }
+    if (getIsConnected()) {
+      const totalCount = await HackathonModel.countDocuments();
+      const newHackathon = await HackathonModel.create({
+        id: totalCount + 1,
+        title,
+        description,
+        rules: rules || "",
+        timeline: timeline || "",
+        date,
+        location: location || "",
+        prizePool: prizePool || ""
+      });
+      return res.status(201).json(newHackathon);
+    }
+
+    const newId = hackathonsInMemory.length > 0 ? Math.max(...hackathonsInMemory.map((h) => h.id)) + 1 : 1;
+    const newHackathon = {
+      id: newId,
+      title,
+      description,
+      rules: rules || "",
+      timeline: timeline || "",
+      date,
+      location: location || "",
+      prizePool: prizePool || ""
+    };
+    hackathonsInMemory.push(newHackathon);
+    res.status(201).json(newHackathon);
+  }
+  catch (error) {
+    res.status(500).json({ message: "Server error while creating hackathon." });
+  }
+}  
 module.exports = {
   getAllHackathons,
   getHackathonById,
   updateHackathon,
-  deleteHackathon
+  deleteHackathon,
+  createHackathon
 };

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { submitProject } from "../services/api";
+import CountdownTimer from "./CountdownTimer";
 
-const SubmissionForm = ({ hackathonId, onSubmitSuccess }) => {
+const SubmissionForm = ({ hackathonId, deadlineDate, onSubmitSuccess }) => {
   const [formData, setFormData] = useState({
     teamName: "",
     projectName: "",
@@ -11,7 +12,7 @@ const SubmissionForm = ({ hackathonId, onSubmitSuccess }) => {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [isExpired, setIsExpired] = useState(false);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -21,6 +22,10 @@ const SubmissionForm = ({ hackathonId, onSubmitSuccess }) => {
     e.preventDefault();
     setError("");
 
+    if (isExpired) {
+      setError("Submissions for this hackathon are closed.");
+      return;
+    }
     if (!formData.teamName || !formData.projectName || !formData.githubUrl || !formData.description) {
       setError("Please fill in all required fields.");
       return;
@@ -44,6 +49,14 @@ const SubmissionForm = ({ hackathonId, onSubmitSuccess }) => {
 
   return (
     <form className="form-container" onSubmit={handleSubmit}>
+      {deadlineDate && (
+        <div style={{ marginBottom: "15px" }}>
+          <CountdownTimer 
+            targetDate={deadlineDate} 
+            onExpire={() => setIsExpired(true)} 
+          />
+        </div>
+      )}
       {error && <div className="alert-error">{error}</div>}
 
       <div className="form-group">
@@ -109,8 +122,13 @@ const SubmissionForm = ({ hackathonId, onSubmitSuccess }) => {
         />
       </div>
 
-      <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: "100%" }}>
-        {loading ? "Submitting..." : "Submit Project"}
+      <button
+        type="submit"
+        className="btn btn-primary"
+        disabled={loading || isExpired}
+        style={{ width: "100%", opacity: isExpired ? 0.6 : 1 }}
+      >
+        {isExpired ? "Submissions Closed" : loading ? "Submitting..." : "Submit Project"}
       </button>
     </form>
   );

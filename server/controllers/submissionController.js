@@ -23,6 +23,13 @@ const createSubmission = async (req, res) => {
         return res.status(404).json({ message: "Associated hackathon does not exist." });
       }
 
+      if (hackathonExists.date) {
+        const deadline = new Date(hackathonExists.date).getTime();
+        if (Date.now() > deadline) {
+          return res.status(400).json({ message: "Submissions for this hackathon are closed." });
+        }
+      }
+
       const totalCount = await SubmissionModel.countDocuments();
       const newSubmission = await SubmissionModel.create({
         id: totalCount + 1,
@@ -44,6 +51,13 @@ const createSubmission = async (req, res) => {
     const hackathonExists = hackathonsInMemory.some((h) => h.id === parsedHackathonId);
     if (!hackathonExists) {
       return res.status(404).json({ message: "Associated hackathon does not exist." });
+    }
+
+    if (hackathonExists.date) {
+      const deadline = new Date(hackathon.date).getTime();
+      if (Date.now() > deadline) {
+        return res.status(400).json({ message: "Submissions for this hackathon are closed." });
+      }
     }
 
     const newId = submissionsInMemory.length > 0 ? Math.max(...submissionsInMemory.map((s) => s.id)) + 1 : 1;

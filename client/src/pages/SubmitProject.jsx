@@ -50,7 +50,7 @@ const SubmitProject = () => {
           </div>
         </div>
       ) : (
-        <SubmissionForm hackathonId={id} onSubmitSuccess={() => setSubmitted(true)} />
+        <SubmissionForm hackathonId={id} deadlineDate={hackathon.date} onSubmitSuccess={() => setSubmitted(true)} />
       )}
     </div>
   );

@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 
 let isConnected = false;
 
+//Set `MONGO_URI` in `server/.env` to connect to MongoDB via Mongoose.
+//Tested and verified persistence for hackathons and submissions across server restarts.
 const connectDB = async () => {
   const uri = process.env.MONGO_URI;
 

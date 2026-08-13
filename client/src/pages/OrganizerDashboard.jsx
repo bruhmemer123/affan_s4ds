@@ -217,6 +217,27 @@ const OrganizerDashboard = () => {
                 />
               </div>
 
+              <div className="form-group">
+                <label>Rules</label>
+                <textarea
+                  name="rules"
+                  value={formData.rules}
+                  onChange={handleInputChange}
+                  placeholder="e.g. 1. Teams of 1-4 members..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Timeline</label>
+                <input
+                  type="text"
+                  name="timeline"
+                  value={formData.timeline}
+                  onChange={handleInputChange}
+                  placeholder="e.g. Kickoff: 09:00 AM | Code Freeze: 06:00 PM"
+                />
+              </div>
+
               <div className="btn-group" style={{ justifyContent: "flex-end", marginTop: "20px" }}>
                 <button type="button" onClick={handleCloseModal} className="btn btn-secondary">
                   Cancel
